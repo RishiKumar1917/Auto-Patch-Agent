@@ -1,20 +1,19 @@
 import sqlite3
+import os
 
 def get_user_data(username):
-    # SECURITY VULNERABILITY: SQL Injection
-    # Using string formatting for SQL queries allows attackers to bypass authentication or extract data.
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
     
-    query = f"SELECT * FROM users WHERE username = '{username}'"
-    cursor.execute(query)
+    query = 'SELECT * FROM users WHERE username = ?'
+    cursor.execute(query, (username,))
     
     return cursor.fetchall()
 
 def authenticate_admin(password):
-    # SECURITY VULNERABILITY: Hardcoded sensitive credentials
-    # Storing credentials in plain text is insecure.
-    ADMIN_PASSWORD = "SuperSecretAdminPassword123!"
-    if password == ADMIN_PASSWORD:
+    admin_password = os.environ.get('ADMIN_PASSWORD')
+    if admin_password is None:
+        raise ValueError("ADMIN_PASSWORD environment variable is not set")
+    if password == admin_password:
         return True
     return False
